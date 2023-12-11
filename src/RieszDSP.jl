@@ -45,8 +45,8 @@ export  getRTfilters, gethigherorderRTfilters,
     directionalHilbert, monogenicanalysis, instantfreq,
     getprefilters,
     waveletanalysis, waveletsynthesis,
-    rieszwaveletanalysis, convert𝓡ψtoψ𝓡,
-    rieszwaveletanalysis, convert𝓡ψtoψ𝓡vectorfield,
+    rieszwaveletanalysis, #convert𝓡ψtoψ𝓡,
+    rieszwaveletanalysis, #convert𝓡ψtoψ𝓡vectorfield,
     getmonogenicwaveletanalysis
 
 end # module RieszFilters

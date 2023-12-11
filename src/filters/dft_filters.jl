@@ -1,10 +1,14 @@
 
-function computefreqgrid(dummy::Array{T,D})::Vector{Vector{T}} where {T <: AbstractFloat ,D}
-
-    sz_Y = size(dummy)
+function computefreqgrid(
+    ::Type{T},
+    sz_Y::Tuple,
+    )::Vector{Vector{T}} where T <: AbstractFloat
+    
+    D = length(sz_Y)
 
     ω_grid = Vector{Vector{T}}(undef, D)
-    for d = 1:D
+    for d in eachindex(sz_Y)
+
         N = sz_Y[d]
         step = convert(T, twopi(T)/N)
         half = div(N,2) # same thing as floor(N/2)
@@ -34,12 +38,16 @@ end
 
 # we want to move the band from [π/4,π/2] to freq_bound_factor*[π/4,π/2].
 function getSimoncellifilters(
-    dummy::Array{T,D},
+    ::Type{T},
+    ::Val{D},
+    sz_Y,
     freq_bound_factor::T,
     )::Tuple{Array{Complex{T},D},Array{Complex{T},D}} where {T <: AbstractFloat, D}
 
-    sz_Y = size(dummy)
-    ω_grid = computefreqgrid(dummy)
+    @assert length(sz_Y) == D
+    
+    #sz_Y = size(dummy)
+    ω_grid = computefreqgrid(T, sz_Y)
 
     ###lowpass frequency rsp.
     LP = zeros(Complex{T}, sz_Y)

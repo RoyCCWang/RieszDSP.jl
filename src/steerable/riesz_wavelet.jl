@@ -14,10 +14,10 @@
 rieszwaveletanalysis(
     y::Array{T,D},
     N_scales::Int,
-    )::Tuple{Vector{Vector{Array{T,D}}},Array{T,D}}
+    )::Tuple{Vector{Vector{Array{T,D}}},Array{T<:AbstractFloat,D}}
 
-returns 𝓡ψY, residual.
-𝓡ψY[d][s][n], where:
+returns WRY, residual.
+WRY[d][s][n], where:
 - d is dimension index, up to D.
 - s is scale index, up to N_scales.
 - n is sampling position index, for a D-dim array.
@@ -25,73 +25,95 @@ returns 𝓡ψY, residual.
 function rieszwaveletanalysis(
     y::Array{T,D},
     N_scales::Int,
-    )::Tuple{Vector{Vector{Array{T,D}}},Array{T,D}} where {T,D}
+    ) where {T <: AbstractFloat,D}
 
-    LP, HP = getprefilters(y)
+    A, r, _ = rieszwaveletanalysis(y, N_scales, 1)
+    return A, r
+end
+
+function rieszwaveletanalysis(
+    y::Array{T,D},
+    N_scales::Integer,
+    order::Integer,
+    ) where {T <: AbstractFloat,D}
+
+    LP, HP = getprefilters(T, Val(D), size(y))
     Y = real.(ifft(fft(y).*LP)) # bandlimited version of y.
     residual = real.(ifft(fft(y).*HP))
 
-    H = getRTfilters(Y)
-    𝓡Y = RieszAnalysisLimited(Y,H)
+    H, a_array = gethigherorderRTfilters(T, Val(D), size(Y), order)
+    RY = RieszAnalysisLimited(Y,H)
 
-    𝓡ψY = collect( waveletanalysis(𝓡Y[d], N_scales) for d = 1:D )
+    WRY = collect( waveletanalysis(RY[j], N_scales) for j in eachindex(RY) )
 
-    return 𝓡ψY, residual
+    return WRY, residual, a_array
 end
 
-# convert data structures
-function convert𝓡ψtoψ𝓡(𝓡ψY::Vector{Vector{Array{T,D}}})::Vector{Vector{Array{T,D}}} where {T,D}
-    @assert !isempty(𝓡ψY)
+# # convert data structures
+# function convert𝓡ψtoψ𝓡(WRY::Vector{Vector{Array{T,D}}})::Vector{Vector{Array{T,D}}} where {T,D}
+#     @assert !isempty(WRY)
 
-    N_scales = length(𝓡ψY[1])
-    ψ𝓡Y = Vector{Vector{Array{T,D}}}(undef, N_scales)
+#     N_scales = length(WRY[1])
+#     ψRY = Vector{Vector{Array{T,D}}}(undef, N_scales)
 
-    for s = 1:N_scales
-        ψ𝓡Y[s] = Vector{Array{T,D}}(undef, D)
+#     for s = 1:N_scales
+#         ψRY[s] = Vector{Array{T,D}}(undef, D)
 
-        for d = 1:D
-            ψ𝓡Y[s][d] = 𝓡ψY[d][s]
-        end
-    end
+#         for d = 1:D
+#             ψRY[s][d] = WRY[d][s]
+#         end
+#     end
 
-    return ψ𝓡Y
-end
+#     return ψRY
+# end
 
-# convert data structures
-function convert𝓡ψtoψ𝓡vectorfield(𝓡ψY::Vector{Vector{Array{T,D}}})::Vector{Array{Vector{T},D}} where {T,D}
-    @assert !isempty(𝓡ψY)
+# # convert data structures
+# function convert𝓡ψtoψ𝓡vectorfield(WRY::Vector{Vector{Array{T,D}}})::Vector{Array{Vector{T},D}} where {T,D}
+#     @assert !isempty(WRY)
 
-    N_scales = length(𝓡ψY[1])
-    ψ𝓡Y = Array{Array{Vector{T},D}}(undef, N_scales)
+#     N_scales = length(WRY[1])
+#     ψRY = Array{Array{Vector{T},D}}(undef, N_scales)
 
-    for s = 1:N_scales
-        ψ𝓡Y[s] = Array{Vector{T}}(undef, size(𝓡ψY[1][s]))
+#     for s = 1:N_scales
+#         ψRY[s] = Array{Vector{T}}(undef, size(WRY[1][s]))
 
-        for i = 1:length(𝓡ψY[1][s])
-            ψ𝓡Y[s][i] = Vector{T}(undef, D)
+#         for i = 1:length(WRY[1][s])
+#             ψRY[s][i] = Vector{T}(undef, D)
 
-            for d = 1:D
-                ψ𝓡Y[s][i][d] = 𝓡ψY[d][s][i]
-            end
-        end
-    end
+#             for d = 1:D
+#                 ψRY[s][i][d] = WRY[d][s][i]
+#             end
+#         end
+#     end
 
-    return ψ𝓡Y
+#     return ψRY
+# end
+
+function rieszwaveletsynthesis(
+    WRY::Vector{Vector{Array{T,D}}},
+    residual::Array{T,D},
+    )::Array{T,D} where {T <: AbstractFloat, D}
+
+    A, _ = rieszwaveletsynthesis(WRY, residual, 1)
+    return A
 end
 
 function rieszwaveletsynthesis(
-    𝓡ψY::Vector{Vector{Array{T,D}}},
+    WRY::Vector{Vector{Array{T,D}}},
     residual::Array{T,D},
-    )::Array{T,D} where {T, D}
+    order::Integer,
+    ) where {T <: AbstractFloat, D}
 
-    𝓡Yr = collect( waveletsynthesis(𝓡ψY[d]) for d = 1:D )
+    RY_rec = collect( waveletsynthesis(WRY[j]) for j in eachindex(WRY) )
 
-    @assert !isempty(𝓡ψY)
-    H = getRTfilters(𝓡Yr[1])
-    Yr = RieszSynthesisLimited(𝓡Yr,H)
+    sz_Y = size(RY_rec[begin])
+    @assert sz_Y == size(residual)
 
-    LP,HP = getprefilters(Yr)
-    Ar = real.(ifft(fft(Yr).*LP + fft(residual).*HP))
+    H, a_array = gethigherorderRTfilters(T, Val(D), sz_Y, order)
+    Y_rec = RieszSynthesisLimited(RY_rec, H)
 
-    return Ar
+    LP, HP = getprefilters(T, Val(D), size(Y_rec))
+    A_rec = real.(ifft(fft(Y_rec).*LP + fft(residual).*HP))
+
+    return A_rec, a_array
 end

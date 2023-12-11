@@ -6,18 +6,23 @@
 #   output should be ℝ-valued (a isotropically low-pass, then derivative).
 # If f is isotropically bandlimited, then ℛᵢf is ℝ-valued, like it should be.
 
-function getunnormalizedRTfilters(Y::Array{T,D})::Vector{Array{Complex{T},D}} where {T,D}
-
-    ω_grid = computefreqgrid(Y)
+function getunnormalizedRTfilters(
+    ::Type{T},
+    ::Val{D},
+    sz_Y::Tuple,
+    )::Vector{Array{Complex{T},D}} where {T <: AbstractFloat, D}
+    
+    @assert length(sz_Y) == D
+    ω_grid = computefreqgrid(T, sz_Y)
 
     ## Riesz frequency rsp.
     # allocate and initialize stoage.
-    H = collect( zeros(Complex{T}, size(Y)) for d = 1:D )
+    H = collect( zeros(Complex{T}, sz_Y) for d = 1:D )
 
     # at non-DC frequencies. Overwrite DC later.
     for _ = 1:D
 
-        for i in CartesianIndices(size(Y))
+        for i in CartesianIndices(sz_Y)
 
             # fetch the corresponding multi-linear index
             #i = i_sub.I
@@ -56,15 +61,21 @@ function getunnormalizedRTfilters(Y::Array{T,D})::Vector{Array{Complex{T},D}} wh
     return H
 end
 
-function gethigherorderRTfilters(   Y::Array{T,D},
-                                    order::Int)::Tuple{Vector{Array{Complex{T},D}},Vector{Vector{Int}}} where {T,D}
+function gethigherorderRTfilters(
+    ::Type{T},
+    ::Val{D},
+    sz_Y::Tuple,
+    order::Int,
+    )::Tuple{Vector{Array{Complex{T},D}},Vector{Vector{Int}}} where {T <: AbstractFloat, D}
+
+    @assert length(sz_Y) == D
 
     ### get the first-order Riesz transform, without the DC normalization applied.
-    H = getunnormalizedRTfilters(Y)
+    H = getunnormalizedRTfilters(T, Val(D), sz_Y)
 
-    M = binomial(order+D-1,D-1)
+    M = binomial(order+D-1, D-1)
 
-    # higher-order Riesz transform. Not implemented for now.
+    # reference code for higher-order Riesz transform.
     # for n1=0:config.order
     #
     #     n2 = config.order-n1;
@@ -73,7 +84,7 @@ function gethigherorderRTfilters(   Y::Array{T,D},
     #     iter +=1;
     # end
 
-    H_Riesz = collect( zeros(Complex{T}, size(Y)) for m = 1:M )
+    H_Riesz = collect( zeros(Complex{T}, sz_Y) for m = 1:M )
 
     # to do: use some monomial ordering, like from the symmetric tensor package.
     #   That way, we can handle arbitrary dimensions.
@@ -106,9 +117,9 @@ function gethigherorderRTfilters(   Y::Array{T,D},
     # Basically, I chose to normalize by dN = d^(0.5*config.RieszOrder); just as a scaling factor over all bands so that when you apply the Riesz filters, and then their adjoint (take the complex conjugate of the filters in Fourier domain) and sum the bands, then you get 1. It's not to hard to compute this factor from the formulas of the filters applied just before.This condition is necessary for the perfect reconstruction property of the filterbank. Basically you should have sum of abs^2 of the DC component of the Riesz filters to be 1. In fact, this should also be true at any other frequency in order to the Riesz filters to define a tight frame ie. self invertible:
     # conj(RW) x (RW) f  = f
     # This is how the multinomial coefficients for the filters have been decided in the first place.
-    dN = D^(0.5*order);
+    dN = D^(order/2)
     for m = 1:M
-        H_Riesz[m][1] = H_Riesz[m][1]/dN
+        H_Riesz[m][begin] = convert(T, H_Riesz[m][begin]/dN)
     end
 
     return H_Riesz, α_array
@@ -116,8 +127,13 @@ end
 
 # for order 1. Discard the monomial orderings, since this case means the channels
 #   correspond to the dimensions.
-function getRTfilters(Y::Array{T,D})::Vector{Array{Complex{T},D}} where {T,D}
-    return gethigherorderRTfilters(Y,1)[1]
+function getRTfilters(
+    ::Type{T},
+    ::Val{D},
+    sz_Y::Tuple,
+    )::Vector{Array{Complex{T},D}} where {T,D}
+
+    return gethigherorderRTfilters(T, Val(D), sz_Y, 1)[begin]
 end
 
 ## naive implementation of multinomial for 2 dimensions
@@ -138,8 +154,10 @@ end
 # end
 
 # assumes f is not isotropically bandlimited.
-function RieszAnalysis(f::Array{T,D},
-                H::Vector{Array{Complex{T},D}})::Vector{Array{Complex{T},D}} where {T,D}
+function RieszAnalysis(
+    f::Array{T,D},
+    H::Vector{Array{Complex{T},D}},
+    )::Vector{Array{Complex{T},D}} where {T <: AbstractFloat, D}
 
     # Rf = Array(Array{Complex{Float64},D}, D)
     # for d = 1:D
@@ -169,8 +187,10 @@ end
 
 # This is the proper Riesz transform.
 # assumes f is isotropically bandlimited.
-function RieszAnalysisLimited(f::Array{T,D},
-                H::Vector{Array{Complex{T},D}})::Vector{Array{T,D}} where {T,D}
+function RieszAnalysisLimited(
+    f::Array{T,D},
+    H::Vector{Array{Complex{T},D}},
+    )::Vector{Array{T,D}} where {T <: AbstractFloat, D}
 
     fft_f = fft(f)
     Rf = collect( real.(ifft(fft_f.*H[m])) for m = 1:length(H) )
@@ -178,18 +198,22 @@ function RieszAnalysisLimited(f::Array{T,D},
     return Rf
 end
 
-function RieszAnalysisLimited(fft_f::Array{Complex{T},D},
-                H::Vector{Array{Complex{T},D}})::Vector{Array{T,D}} where {T,D}
+# modified.
+# function RieszAnalysisLimited(
+#     fft_f::Array{Complex{T},D},
+#     H::Vector{Array{Complex{T},D}},
+#     )::Vector{Array{T,D}} where {T,D}
 
-    Rf = collect( real.(ifft(fft_f.*H[m])) for m = 1:length(H) )
+#     Rf = collect( real.(ifft(fft_f.*H[m])) for m = 1:length(H) )
 
-    return Rf
-end
+#     return Rf
+# end
 
 
 # This is the proper inverse Riesz transform.
 # assumes f is isotropically bandlimited.
-function RieszSynthesisLimited(Rf::Vector{Array{T,D}},
+function RieszSynthesisLimited(
+    Rf::Vector{Array{T,D}},
                 H::Vector{Array{Complex{T},D}})::Array{T,D} where {T,D}
 
     f = zeros(T, size(Rf[1]))

@@ -10,10 +10,10 @@ N_scales = round(Int, log2( maximum(size(y))))
 
 println("Demo for Riesz-wavelet reconstruction.")
 
-𝓡ψY, residual = RZ.rieszwaveletanalysis(y, N_scales)
+WRY, residual = RZ.rieszwaveletanalysis(y, N_scales)
 
-yr = RZ.rieszwaveletsynthesis(𝓡ψY, residual)
-println("discrepancy between y and yr: ", sum(abs.(y-yr)) )
+yr = RZ.rieszwaveletsynthesis(WRY, residual)
+println("relative discrepancy between y and yr: ", norm(y-yr)/norm(y) )
 println()
 
 nothing
