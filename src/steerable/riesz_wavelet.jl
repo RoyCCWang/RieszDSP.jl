@@ -21,6 +21,32 @@ WRY[d][s][n], where:
 - d is dimension index, up to D.
 - s is scale index, up to N_scales.
 - n is sampling position index, for a D-dim array.
+
+`residual` is the portion of `y` that doesn't under go the transform. Keep this if you want to do synthesis.
+
+# Example: forward Riesz transform (rieszwaveletanalysis) and its inverse transform (rieszwaveletsynthesis)
+```julia
+import RieszDSP as RZ
+using LinearAlgebra
+
+# generate input data.
+T = Float64
+y = randn(T, 45, 512, 3)
+
+# specification for the number of wavelet subbands.
+N_scales = round(Int, log2( maximum(size(y))))
+
+# forward transform.
+WRY, residual = RZ.rieszwaveletanalysis(y, N_scales)
+# residual is the portion that does not under go the Riesz-wavelet transform.
+
+# inverse transform.
+yr = RZ.rieszwaveletsynthesis(WRY, residual)
+
+# this is a perfect reconstruction (up to numerical precision), if `residual` is kept.
+println("relative discrepancy between y and yr: ", norm(y-yr)/norm(y) )
+println()
+```
 """
 function rieszwaveletanalysis(
     y::Array{T,D},
@@ -31,6 +57,57 @@ function rieszwaveletanalysis(
     return A, r
 end
 
+
+
+"""
+rieszwaveletanalysis(
+    y::Array{T,D},
+    N_scales::Integer,
+    order::Integer,
+    ) where {T <: AbstractFloat,D}
+    
+
+returns WRY, residual, a_array.
+
+WRY[d][s][n], where:
+- d is dimension index, up to D.
+- s is scale index, up to N_scales.
+- n is sampling position index, for a D-dim array.
+
+`residual` is the portion of `y` that doesn't under go the transform. Keep this if you want to do synthesis.
+
+a_array: a 1-D array of D-tuples. Each tuple sums to `order`. The `d`-th entry of the tuple takes on an integer between 0 and `order`, and reflects the number of times the Riesz transform is applied in the `d`-th coordinate axis. In other words, `a_array` is the index set for the multi-indices of a `D`-dimensional order-`L` symmetric tensor.
+
+# Example: higher-order Riesz-wavelet transform, round-trip.
+```julia
+import RieszDSP as RZ
+using LinearAlgebra
+
+# generate input data.
+T = Float64
+y = randn(T, 45, 512, 3)
+
+# specification for the number of wavelet subbands.
+N_scales = round(Int, log2( maximum(size(y))))
+
+
+# Specify the Riesz transform order.
+order = 7
+
+WRY, residual, a_array = RZ.rieszwaveletanalysis(y, N_scales, order)
+
+# each entry in a_array specifies the number of times the Riesz transform is iterated per dimension.
+# Since our in put `y` is a 3-D array, each entry of `a_array` is a 3-tuple that sums to the order we specified.
+println("The Riesz order states are:", a_array)
+
+yr, a_array_rec = RZ.rieszwaveletsynthesis(WRY, residual, order)
+println("relative discrepancy between y and yr: ", norm(y-yr)/norm(y) )
+println()
+
+# The returned Riesz order states from the analysis and synthesis directions of the transform should be the same. The following should be zero.
+@show norm(a_array - a_array_rec)
+```
+"""
 function rieszwaveletanalysis(
     y::Array{T,D},
     N_scales::Integer,
@@ -89,6 +166,40 @@ end
 #     return ψRY
 # end
 
+"""
+rieszwaveletsynthesis(
+    WRY::Vector{Vector{Array{T,D}}},
+    residual::Array{T,D},
+    )::Array{T,D} where {T <: AbstractFloat, D}
+    
+See rieszwaveletanalysis for a description of the inputs.
+
+returns the original input, y of type Array{T,D}.
+
+# Example: first-order Riesz-wavelet transform, round-trip.
+```julia
+import RieszDSP as RZ
+using LinearAlgebra
+
+# generate input data.
+T = Float64
+y = randn(T, 45, 512, 3)
+
+# specification for the number of wavelet subbands.
+N_scales = round(Int, log2( maximum(size(y))))
+
+# forward transform.
+WRY, residual = RZ.rieszwaveletanalysis(y, N_scales)
+# residual is the portion that does not under go the Riesz-wavelet transform.
+
+# inverse transform.
+yr = RZ.rieszwaveletsynthesis(WRY, residual)
+
+# this is a perfect reconstruction (up to numerical precision), if `residual` is kept.
+println("relative discrepancy between y and yr: ", norm(y-yr)/norm(y) )
+println()
+```
+"""
 function rieszwaveletsynthesis(
     WRY::Vector{Vector{Array{T,D}}},
     residual::Array{T,D},
@@ -98,6 +209,46 @@ function rieszwaveletsynthesis(
     return A
 end
 
+
+"""
+rieszwaveletsynthesis(
+    WRY::Vector{Vector{Array{T,D}}},
+    residual::Array{T,D},
+    )::Array{T,D} where {T <: AbstractFloat, D}
+
+See rieszwaveletanalysis for a description of the inputs.
+
+returns the original input, y of type Array{T,D}.
+# Example: higher-order Riesz-wavelet transform, round-trip.
+```julia
+import RieszDSP as RZ
+using LinearAlgebra
+
+# generate input data.
+T = Float64
+y = randn(T, 45, 512, 3)
+
+# specification for the number of wavelet subbands.
+N_scales = round(Int, log2( maximum(size(y))))
+
+
+# Specify the Riesz transform order.
+order = 7
+
+WRY, residual, a_array = RZ.rieszwaveletanalysis(y, N_scales, order)
+
+# each entry in a_array specifies the number of times the Riesz transform is iterated per dimension.
+# Since our in put `y` is a 3-D array, each entry of `a_array` is a 3-tuple that sums to the order we specified.
+println("The Riesz order states are:", a_array)
+
+yr, a_array_rec = RZ.rieszwaveletsynthesis(WRY, residual, order)
+println("relative discrepancy between y and yr: ", norm(y-yr)/norm(y) )
+println()
+
+# The returned Riesz order states from the analysis and synthesis directions of the transform should be the same. The following should be zero.
+@show norm(a_array - a_array_rec)
+```
+"""
 function rieszwaveletsynthesis(
     WRY::Vector{Vector{Array{T,D}}},
     residual::Array{T,D},

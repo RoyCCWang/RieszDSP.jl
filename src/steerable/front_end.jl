@@ -1,3 +1,14 @@
+
+"""
+getdefaultscale(sz_y::Tuple)::Int
+
+returns the default heuristic on choosing a dyadic scale.
+    `round(Int, log2( maximum(sz_y)))`
+"""
+function getdefaultscale(sz_y::Tuple)::Int
+    round(Int, log2( maximum(sz_y)))
+end
+
 function getmonogenicwaveletanalysis(
     y::Array{T,D},
     N_scales = round(Int, log2( maximum(size(y)) )),

@@ -1,8 +1,8 @@
 
-using FFTW
 using LinearAlgebra
 using Statistics
 
+import LaTeXStrings as TEX
 import PythonPlot as PLT
 
 import Random

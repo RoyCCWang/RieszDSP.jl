@@ -39,14 +39,15 @@ include("steerable/front_end.jl")
 include("sym_tensor.jl")
 include("filters/dft_filters.jl")
 
-export  getRTfilters, gethigherorderRTfilters,
-    RieszAnalysis, RieszSynthesis,
-    RieszAnalysisLimited, RieszSynthesisLimited,
-    directionalHilbert, monogenicanalysis, instantfreq,
-    getprefilters,
-    waveletanalysis, waveletsynthesis,
+export  getdefaultscale,
+    # getRTfilters, gethigherorderRTfilters,
+    # RieszAnalysis, RieszSynthesis,
+    # RieszAnalysisLimited, RieszSynthesisLimited,
+    # directionalHilbert, monogenicanalysis, instantfreq,
+    # getprefilters,
+    #waveletanalysis, waveletsynthesis,
+    #getmonogenicwaveletanalysis
     rieszwaveletanalysis, #convert𝓡ψtoψ𝓡,
-    rieszwaveletanalysis, #convert𝓡ψtoψ𝓡vectorfield,
-    getmonogenicwaveletanalysis
+    rieszwaveletsynthesis #convert𝓡ψtoψ𝓡vectorfield,
 
 end # module RieszFilters
