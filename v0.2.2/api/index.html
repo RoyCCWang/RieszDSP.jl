@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Public API · RieszDSP.jl</title><meta name="title" content="Public API · RieszDSP.jl"/><meta property="og:title" content="Public API · RieszDSP.jl"/><meta property="twitter:title" content="Public API · RieszDSP.jl"/><meta name="description" content="Documentation for RieszDSP.jl."/><meta property="og:description" content="Documentation for RieszDSP.jl."/><meta property="twitter:description" content="Documentation for RieszDSP.jl."/><script data-outdated-warner src="../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../search_index.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../">RieszDSP.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../">Overview</a></li><li class="is-active"><a class="tocitem" href>Public API</a><ul class="internal"><li><a class="tocitem" href="#Frontend"><span>Frontend</span></a></li></ul></li><li><a class="tocitem" href="../demo/">Demo: image analysis</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Public API</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Public API</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/RoyCCWang/RieszDSP.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/RoyCCWang/RieszDSP.jl/blob/main/docs/src/api.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Function-References"><a class="docs-heading-anchor" href="#Function-References">Function References</a><a id="Function-References-1"></a><a class="docs-heading-anchor-permalink" href="#Function-References" title="Permalink"></a></h1><h2 id="Frontend"><a class="docs-heading-anchor" href="#Frontend">Frontend</a><a id="Frontend-1"></a><a class="docs-heading-anchor-permalink" href="#Frontend" title="Permalink"></a></h2><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="RieszDSP.getdefaultscale" href="#RieszDSP.getdefaultscale"><code>RieszDSP.getdefaultscale</code></a> — <span class="docstring-category">Function</span></header><section><div><p>getdefaultscale(sz_y::Tuple)::Int</p><p>returns the default heuristic on choosing a dyadic scale.     <code>round(Int, log2( maximum(sz_y)))</code></p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/RoyCCWang/RieszDSP.jl/blob/9c3c14e35a242991016f86e507c8fb8afbe7ad00/src/steerable/front_end.jl#L2-L7">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="RieszDSP.rieszwaveletanalysis" href="#RieszDSP.rieszwaveletanalysis"><code>RieszDSP.rieszwaveletanalysis</code></a> — <span class="docstring-category">Function</span></header><section><div><p>rieszwaveletanalysis(     y::Array{T,D},     N_scales::Int,     )::Tuple{Vector{Vector{Array{T,D}}},Array{T&lt;:AbstractFloat,D}}</p><p>returns WRY, residual. WRY[d][s][n], where:</p><ul><li>d is dimension index, up to D.</li><li>s is scale index, up to N_scales.</li><li>n is sampling position index, for a D-dim array.</li></ul><p><code>residual</code> is the portion of <code>y</code> that doesn&#39;t under go the transform. Keep this if you want to do synthesis.</p><p><strong>Example: forward Riesz transform (rieszwaveletanalysis) and its inverse transform (rieszwaveletsynthesis)</strong></p><pre><code class="language-julia hljs">import RieszDSP as RZ
+using LinearAlgebra
+
+# generate input data.
+T = Float64
+y = randn(T, 45, 512, 3)
+
+# specification for the number of wavelet subbands.
+N_scales = round(Int, log2( maximum(size(y))))
+
+# forward transform.
+WRY, residual = RZ.rieszwaveletanalysis(y, N_scales)
+# residual is the portion that does not under go the Riesz-wavelet transform.
+
+# inverse transform.
+yr = RZ.rieszwaveletsynthesis(WRY, residual)
+
+# this is a perfect reconstruction (up to numerical precision), if `residual` is kept.
+println(&quot;relative discrepancy between y and yr: &quot;, norm(y-yr)/norm(y) )
+println()</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/RoyCCWang/RieszDSP.jl/blob/9c3c14e35a242991016f86e507c8fb8afbe7ad00/src/steerable/riesz_wavelet.jl#L13-L50">source</a></section><section><div><p>rieszwaveletanalysis(     y::Array{T,D},     N_scales::Integer,     order::Integer,     ) where {T &lt;: AbstractFloat,D}</p><p>returns WRY, residual, a_array.</p><p>WRY[d][s][n], where:</p><ul><li>d is dimension index, up to D.</li><li>s is scale index, up to N_scales.</li><li>n is sampling position index, for a D-dim array.</li></ul><p><code>residual</code> is the portion of <code>y</code> that doesn&#39;t under go the transform. Keep this if you want to do synthesis.</p><p>a<em>array: a 1-D array of D-tuples. Each tuple sums to <code>order</code>. The <code>d</code>-th entry of the tuple takes on an integer between 0 and <code>order</code>, and reflects the number of times the Riesz transform is applied in the <code>d</code>-th coordinate axis. In other words, `a</em>array<code>is the index set for the multi-indices of a</code>D<code>-dimensional order-</code>L` symmetric tensor.</p><p><strong>Example: higher-order Riesz-wavelet transform, round-trip.</strong></p><pre><code class="language-julia hljs">import RieszDSP as RZ
+using LinearAlgebra
+
+# generate input data.
+T = Float64
+y = randn(T, 45, 512, 3)
+
+# specification for the number of wavelet subbands.
+N_scales = round(Int, log2( maximum(size(y))))
+
+
+# Specify the Riesz transform order.
+order = 7
+
+WRY, residual, a_array = RZ.rieszwaveletanalysis(y, N_scales, order)
+
+# each entry in a_array specifies the number of times the Riesz transform is iterated per dimension.
+# Since our in put `y` is a 3-D array, each entry of `a_array` is a 3-tuple that sums to the order we specified.
+println(&quot;The Riesz order states are:&quot;, a_array)
+
+yr, a_array_rec = RZ.rieszwaveletsynthesis(WRY, residual, order)
+println(&quot;relative discrepancy between y and yr: &quot;, norm(y-yr)/norm(y) )
+println()
+
+# The returned Riesz order states from the analysis and synthesis directions of the transform should be the same. The following should be zero.
+@show norm(a_array - a_array_rec)</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/RoyCCWang/RieszDSP.jl/blob/9c3c14e35a242991016f86e507c8fb8afbe7ad00/src/steerable/riesz_wavelet.jl#L62-L110">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="RieszDSP.rieszwaveletsynthesis" href="#RieszDSP.rieszwaveletsynthesis"><code>RieszDSP.rieszwaveletsynthesis</code></a> — <span class="docstring-category">Function</span></header><section><div><p>rieszwaveletsynthesis(     WRY::Vector{Vector{Array{T,D}}},     residual::Array{T,D},     )::Array{T,D} where {T &lt;: AbstractFloat, D}</p><p>See rieszwaveletanalysis for a description of the inputs.</p><p>returns the original input, y of type Array{T,D}.</p><p><strong>Example: first-order Riesz-wavelet transform, round-trip.</strong></p><pre><code class="language-julia hljs">import RieszDSP as RZ
+using LinearAlgebra
+
+# generate input data.
+T = Float64
+y = randn(T, 45, 512, 3)
+
+# specification for the number of wavelet subbands.
+N_scales = round(Int, log2( maximum(size(y))))
+
+# forward transform.
+WRY, residual = RZ.rieszwaveletanalysis(y, N_scales)
+# residual is the portion that does not under go the Riesz-wavelet transform.
+
+# inverse transform.
+yr = RZ.rieszwaveletsynthesis(WRY, residual)
+
+# this is a perfect reconstruction (up to numerical precision), if `residual` is kept.
+println(&quot;relative discrepancy between y and yr: &quot;, norm(y-yr)/norm(y) )
+println()</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/RoyCCWang/RieszDSP.jl/blob/9c3c14e35a242991016f86e507c8fb8afbe7ad00/src/steerable/riesz_wavelet.jl#L169-L202">source</a></section><section><div><p>rieszwaveletsynthesis(     WRY::Vector{Vector{Array{T,D}}},     residual::Array{T,D},     )::Array{T,D} where {T &lt;: AbstractFloat, D}</p><p>See rieszwaveletanalysis for a description of the inputs.</p><p>returns the original input, y of type Array{T,D}.</p><p><strong>Example: higher-order Riesz-wavelet transform, round-trip.</strong></p><pre><code class="language-julia hljs">import RieszDSP as RZ
+using LinearAlgebra
+
+# generate input data.
+T = Float64
+y = randn(T, 45, 512, 3)
+
+# specification for the number of wavelet subbands.
+N_scales = round(Int, log2( maximum(size(y))))
+
+
+# Specify the Riesz transform order.
+order = 7
+
+WRY, residual, a_array = RZ.rieszwaveletanalysis(y, N_scales, order)
+
+# each entry in a_array specifies the number of times the Riesz transform is iterated per dimension.
+# Since our in put `y` is a 3-D array, each entry of `a_array` is a 3-tuple that sums to the order we specified.
+println(&quot;The Riesz order states are:&quot;, a_array)
+
+yr, a_array_rec = RZ.rieszwaveletsynthesis(WRY, residual, order)
+println(&quot;relative discrepancy between y and yr: &quot;, norm(y-yr)/norm(y) )
+println()
+
+# The returned Riesz order states from the analysis and synthesis directions of the transform should be the same. The following should be zero.
+@show norm(a_array - a_array_rec)</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/RoyCCWang/RieszDSP.jl/blob/9c3c14e35a242991016f86e507c8fb8afbe7ad00/src/steerable/riesz_wavelet.jl#L213-L251">source</a></section></article></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../">« Overview</a><a class="docs-footer-nextpage" href="../demo/">Demo: image analysis »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="auto">Automatic (OS)</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.2.1 on <span class="colophon-date" title="Wednesday 10 January 2024 03:48">Wednesday 10 January 2024</span>. Using Julia version 1.10.0.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

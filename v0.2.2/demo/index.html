@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Demo: image analysis · RieszDSP.jl</title><meta name="title" content="Demo: image analysis · RieszDSP.jl"/><meta property="og:title" content="Demo: image analysis · RieszDSP.jl"/><meta property="twitter:title" content="Demo: image analysis · RieszDSP.jl"/><meta name="description" content="Documentation for RieszDSP.jl."/><meta property="og:description" content="Documentation for RieszDSP.jl."/><meta property="twitter:description" content="Documentation for RieszDSP.jl."/><script data-outdated-warner src="../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../search_index.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../">RieszDSP.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../">Overview</a></li><li><a class="tocitem" href="../api/">Public API</a></li><li class="is-active"><a class="tocitem" href>Demo: image analysis</a><ul class="internal"><li><a class="tocitem" href="#Load-dependencies"><span>Load dependencies</span></a></li><li><a class="tocitem" href="#Load-image,-and-convert-into-a-2-D-array"><span>Load image, and convert into a 2-D array</span></a></li><li><a class="tocitem" href="#Set-specifications,-then-apply-higher-order-Riesz-wavelet-transform-on-y"><span>Set specifications, then apply higher-order Riesz-wavelet transform on y</span></a></li><li><a class="tocitem" href="#Visualize"><span>Visualize</span></a></li><li><a class="tocitem" href="#Round-trip-discrepancy"><span>Round-trip discrepancy</span></a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Demo: image analysis</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Demo: image analysis</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/RoyCCWang/RieszDSP.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/RoyCCWang/RieszDSP.jl/blob/main/docs/src/demo.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Demo:-image-analysis"><a class="docs-heading-anchor" href="#Demo:-image-analysis">Demo: image analysis</a><a id="Demo:-image-analysis-1"></a><a class="docs-heading-anchor-permalink" href="#Demo:-image-analysis" title="Permalink"></a></h1><h2 id="Load-dependencies"><a class="docs-heading-anchor" href="#Load-dependencies">Load dependencies</a><a id="Load-dependencies-1"></a><a class="docs-heading-anchor-permalink" href="#Load-dependencies" title="Permalink"></a></h2><pre><code class="language-julia hljs">import RieszDSP as RZ
+using LinearAlgebra
+
+import PythonPlot as PLT # for visualization
+PLT.close(&quot;all&quot;)
+fig_num = 1;
+
+import Images # for loading the image.</code></pre><p>We&#39;ll use 64-bit floating point numbers. We will get a higher round-trip discrepancy if we use less precision.</p><pre><code class="language-julia hljs">T = Float64;</code></pre><h2 id="Load-image,-and-convert-into-a-2-D-array"><a class="docs-heading-anchor" href="#Load-image,-and-convert-into-a-2-D-array">Load image, and convert into a 2-D array</a><a id="Load-image,-and-convert-into-a-2-D-array-1"></a><a class="docs-heading-anchor-permalink" href="#Load-image,-and-convert-into-a-2-D-array" title="Permalink"></a></h2><pre><code class="language-julia hljs">file_path = &quot;data/kodim23.png&quot;
+img = Images.load(file_path)
+gray_img = Images.Gray.(img)
+y = convert(Array{T}, gray_img); # This is the image, stored as a 2-D array.</code></pre><h2 id="Set-specifications,-then-apply-higher-order-Riesz-wavelet-transform-on-y"><a class="docs-heading-anchor" href="#Set-specifications,-then-apply-higher-order-Riesz-wavelet-transform-on-y">Set specifications, then apply higher-order Riesz-wavelet transform on y</a><a id="Set-specifications,-then-apply-higher-order-Riesz-wavelet-transform-on-y-1"></a><a class="docs-heading-anchor-permalink" href="#Set-specifications,-then-apply-higher-order-Riesz-wavelet-transform-on-y" title="Permalink"></a></h2><pre><code class="language-julia hljs">#specifications
+order = 2
+N_scales = round(Int, log2( maximum(size(y))))
+
+#forward transform.
+WRY, residual, a_array = RZ.rieszwaveletanalysis(
+    y, N_scales, order,
+)
+println(&quot;contents of a_array:&quot;)
+display(a_array)
+println()</code></pre><pre><code class="nohighlight hljs">contents of a_array:
+
+</code></pre><p>WRY is a nested array that contains the Riesz-wavelet response of y.</p><p>Given a l and j, WRY[l][j] is the response for the l-th Riesz order state, j-th wavelet analysis subband. The set of all Riesz order states is stored in <code>a_array</code>. The residual is the portion of the input that was excluded from the Riesz-wavelet transform. We need this if we want to do perfect reconstruction given the forward transform responses.</p><p>These two should always have the same length, which is the number of different combinations of iteration for Riesz transform for each dimension.</p><pre><code class="language-julia hljs">@assert length(a_array) == length(WRY)</code></pre><h2 id="Visualize"><a class="docs-heading-anchor" href="#Visualize">Visualize</a><a id="Visualize-1"></a><a class="docs-heading-anchor-permalink" href="#Visualize" title="Permalink"></a></h2><pre><code class="language-julia hljs">#maximum intensity.
+vmax = maximum(abs.(y))
+
+#original.
+PLT.figure(fig_num)
+fig_num += 1
+PLT.pcolormesh(
+    1:size(y,2),
+    size(y,1):-1:1,
+    y,
+    #cmap = &quot;bwr&quot;,
+    cmap = &quot;gray&quot;,
+    shading = &quot;auto&quot;,
+    vmin = zero(T),
+    vmax = vmax,
+)
+PLT.colorbar()
+PLT.axis(&quot;scaled&quot;)
+PLT.xlabel(&quot;x2 axis&quot;)
+PLT.ylabel(&quot;x1 axis&quot;)
+PLT.title(&quot;Original input&quot;)
+PLT.gcf()</code></pre><p><img src="../assets/image-16.png" alt/></p><p>We will just plot the 5-th scale of the wavelet subband for this example.</p><pre><code class="language-julia hljs">j = 3;</code></pre><p>The first Riesz-order state, subband j.</p><pre><code class="language-julia hljs">l = 1
+println(&quot;Riesz order state: &quot;, a_array[l])
+
+rsp = WRY[l][j]
+Z = max(abs(minimum(rsp)), abs(maximum(rsp)))
+
+PLT.figure(fig_num)
+fig_num += 1
+PLT.pcolormesh(
+    1:size(rsp,2),
+    size(rsp,1):-1:1,
+    rsp,
+    cmap = &quot;bwr&quot;,
+    #cmap = &quot;gray&quot;,
+    shading = &quot;auto&quot;,
+    vmin = -Z,
+    vmax = Z,
+)
+PLT.colorbar()
+PLT.axis(&quot;scaled&quot;)
+PLT.xlabel(&quot;x2 axis&quot;)
+PLT.ylabel(&quot;x1 axis&quot;)
+PLT.title(&quot;$j-th scale, order-$(a_array[l]) response&quot;)
+PLT.gcf()</code></pre><p><img src="../assets/image-20.png" alt/></p><p>The second Riesz-order state, subband j.</p><pre><code class="language-julia hljs">l = 2
+println(&quot;Riesz order state: &quot;, a_array[l])
+
+rsp = WRY[l][j]
+Z = max(abs(minimum(rsp)), abs(maximum(rsp)))
+
+PLT.figure(fig_num)
+fig_num += 1
+PLT.pcolormesh(
+    1:size(rsp,2),
+    size(rsp,1):-1:1,
+    rsp,
+    cmap = &quot;bwr&quot;,
+    #cmap = &quot;gray&quot;,
+    shading = &quot;auto&quot;,
+    vmin = -Z,
+    vmax = Z,
+)
+PLT.colorbar()
+PLT.axis(&quot;scaled&quot;)
+PLT.xlabel(&quot;x2 axis&quot;)
+PLT.ylabel(&quot;x1 axis&quot;)
+PLT.title(&quot;$j-th scale, order-$(a_array[l]) response&quot;)
+PLT.gcf()</code></pre><p><img src="../assets/image-22.png" alt/></p><p>The third Riesz-order state, subband j.</p><pre><code class="language-julia hljs">l = 3
+println(&quot;Riesz order state: &quot;, a_array[l])
+
+rsp = WRY[l][j]
+Z = max(abs(minimum(rsp)), abs(maximum(rsp)))
+
+PLT.figure(fig_num)
+fig_num += 1
+PLT.pcolormesh(
+    1:size(rsp,2),
+    size(rsp,1):-1:1,
+    rsp,
+    cmap = &quot;bwr&quot;,
+    #cmap = &quot;gray&quot;,
+    shading = &quot;auto&quot;,
+    vmin = -Z,
+    vmax = Z,
+)
+PLT.colorbar()
+PLT.axis(&quot;scaled&quot;)
+PLT.xlabel(&quot;x2 axis&quot;)
+PLT.ylabel(&quot;x1 axis&quot;)
+PLT.title(&quot;$j-th scale, order-$(a_array[l]) response&quot;)
+PLT.gcf()</code></pre><p><img src="../assets/image-24.png" alt/></p><h2 id="Round-trip-discrepancy"><a class="docs-heading-anchor" href="#Round-trip-discrepancy">Round-trip discrepancy</a><a id="Round-trip-discrepancy-1"></a><a class="docs-heading-anchor-permalink" href="#Round-trip-discrepancy" title="Permalink"></a></h2><p>the inverse Riesz-wavelet transform first performs wavelet synthesis to gather the subband responses for each Riesz order state. Then it applies the inverse higher-order Riesz transform for each Riesz order state to combine into the filtered input. The residual is then added to the filtered input to get the original input. Therefore, if we keep track of the <code>residual</code> portion of the input, the Riesz-wavlet transform is a perfect reconstruction transform.</p><pre><code class="language-julia hljs">y_rec, a_array2 = RZ.rieszwaveletsynthesis(WRY, residual, order)
+println(&quot;Round-trip discrepancy: &quot;, norm(y_rec - y));
+
+nothing</code></pre><pre><code class="nohighlight hljs">Round-trip discrepancy: 1.4719882595318903e-13
+</code></pre><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../api/">« Public API</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="auto">Automatic (OS)</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.2.1 on <span class="colophon-date" title="Wednesday 10 January 2024 03:48">Wednesday 10 January 2024</span>. Using Julia version 1.10.0.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
