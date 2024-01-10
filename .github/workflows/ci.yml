@@ -87,7 +87,7 @@ jobs:
             Pkg.Registry.add(RegistrySpec(url = "https://github.com/AI4DBiological-Systems/PublicJuliaRegistry"))
             
             using RieszDSP
-            const HAM = RieszDSP
+            const RZ = RieszDSP
             doctest(RieszDSP)'
         shell: bash
         env:
