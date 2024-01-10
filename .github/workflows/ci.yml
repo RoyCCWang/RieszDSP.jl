@@ -40,7 +40,7 @@ jobs:
       - run: |
           julia --project=@. -e '
             using Pkg
-            Pkg.Registry.add(RegistrySpec(url = "https://github.com/RoyCCWang/RWPublicJuliaRegistry"))
+            Pkg.Registry.add(RegistrySpec(url = "https://github.com/RoyCCWang/RWPublicJuliaRegistry"))'
 
         shell: bash
         env:
@@ -90,7 +90,7 @@ jobs:
         env:
           DATADEPS_ALWAYS_ACCEPT: true
       - run: julia --project=docs docs/make.jl 'using Pkg;
-            Pkg.Registry.add(RegistrySpec(url = "https://github.com/RoyCCWang/RWPublicJuliaRegistry"))
+            Pkg.Registry.add(RegistrySpec(url = "https://github.com/RoyCCWang/RWPublicJuliaRegistry"))'
             
         shell: bash
         env:
