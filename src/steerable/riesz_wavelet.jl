@@ -11,10 +11,11 @@
 
 
 """
-rieszwaveletanalysis(
-    y::Array{T,D},
-    N_scales::Int,
-    )::Tuple{Vector{Vector{Array{T,D}}},Array{T<:AbstractFloat,D}}
+    rieszwaveletanalysis(y::Array{T}, N_scales::Int) where T <: AbstractFloat
+    
+Return types:
+- `Vector{Vector{Array{T,D}}}`
+- `Array{T<:AbstractFloat,D}`
 
 returns WRY, residual.
 WRY[d][s][n], where:
@@ -48,10 +49,7 @@ println("relative discrepancy between y and yr: ", norm(y-yr)/norm(y) )
 println()
 ```
 """
-function rieszwaveletanalysis(
-    y::Array{T,D},
-    N_scales::Int,
-    ) where {T <: AbstractFloat,D}
+function rieszwaveletanalysis(y::Array{T}, N_scales::Int) where T <: AbstractFloat
 
     A, r, _ = rieszwaveletanalysis(y, N_scales, 1)
     return A, r
@@ -115,12 +113,16 @@ function rieszwaveletanalysis(
     ) where {T <: AbstractFloat,D}
 
     LP, HP = getprefilters(T, Val(D), size(y))
+
+    # pre-filter.
     Y = real.(ifft(fft(y).*LP)) # bandlimited version of y.
     residual = real.(ifft(fft(y).*HP))
 
+    # Riesz transform.
     H, a_array = gethigherorderRTfilters(T, Val(D), size(Y), order)
     RY = RieszAnalysisLimited(Y,H)
 
+    # wavelet transform.
     WRY = collect( waveletanalysis(RY[j], N_scales) for j in eachindex(RY) )
 
     return WRY, residual, a_array
