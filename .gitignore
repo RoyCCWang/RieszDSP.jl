@@ -24,4 +24,5 @@ docs/site/
 Manifest.toml
 examples/Manifest.toml
 
+examples/tmp/
 docs/.lyx~
